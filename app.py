@@ -155,13 +155,27 @@ if uploaded:
         )
 
         b64 = base64.b64encode(pdf_bytes).decode()
-        st.markdown(
-            f'<a href="data:application/pdf;base64,{b64}" download="{filename}" '
-            f'style="display:block;text-align:center;padding:14px 28px;border-radius:12px;'
-            f'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;'
-            f'font-size:1rem;text-decoration:none;margin-top:8px;">'
-            f'📥 Baixar PDF (celular)</a>',
-            unsafe_allow_html=True,
+        st.components.v1.html(
+            f'''<script>
+            function downloadPdf() {{
+                const b64 = "{b64}";
+                const byteChars = atob(b64);
+                const byteArr = new Uint8Array(byteChars.length);
+                for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+                const blob = new Blob([byteArr], {{type: "application/pdf"}});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "{filename}";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }}
+            </script>
+            <button onclick="downloadPdf()" style="display:block;width:100%;text-align:center;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;margin-top:8px;">
+            📥 Baixar PDF (celular)</button>''',
+            height=60,
         )
 
 st.divider()
