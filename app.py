@@ -107,7 +107,7 @@ if uploaded:
         margin_x = (page_w - grid_w) / 2
 
         photo_tmp = io.BytesIO()
-        final.save(photo_tmp, format="JPEG", quality=75)
+        final.save(photo_tmp, format="JPEG", quality=60)
         photo_tmp.seek(0)
 
         pdf = FPDF(orientation="P", unit="mm", format="A4")
@@ -154,16 +154,15 @@ if uploaded:
             use_container_width=True,
         )
 
-        if len(pdf_bytes) < 500000:
-            b64 = base64.b64encode(pdf_bytes).decode()
-            st.markdown(
-                f'<a href="data:application/pdf;base64,{b64}" download="{filename}" '
-                f'style="display:block;text-align:center;padding:14px 28px;border-radius:12px;'
-                f'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;'
-                f'font-size:1rem;text-decoration:none;margin-top:8px;">'
-                f'📥 Baixar PDF (celular)</a>',
-                unsafe_allow_html=True,
-            )
+        b64 = base64.b64encode(pdf_bytes).decode()
+        st.markdown(
+            f'<a href="data:application/pdf;base64,{b64}" download="{filename}" '
+            f'style="display:block;text-align:center;padding:14px 28px;border-radius:12px;'
+            f'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;'
+            f'font-size:1rem;text-decoration:none;margin-top:8px;">'
+            f'📥 Baixar PDF (celular)</a>',
+            unsafe_allow_html=True,
+        )
 
 st.divider()
 st.link_button("🌐 Visite meu site", "https://elizeubarbosa.com.br/", use_container_width=True)
