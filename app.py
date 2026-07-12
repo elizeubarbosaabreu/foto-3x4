@@ -146,14 +146,6 @@ if uploaded:
         qtd_saved = st.session_state["pdf_qtd"]
         filename = f"foto_3x4_{qtd_saved}fotos.pdf"
 
-        st.download_button(
-            f"📥 Baixar PDF ({qtd_saved} fotos)",
-            pdf_bytes,
-            filename,
-            "application/pdf",
-            use_container_width=True,
-        )
-
         b64 = base64.b64encode(pdf_bytes).decode()
         st.components.v1.html(
             f'''<script>
@@ -173,8 +165,8 @@ if uploaded:
                 URL.revokeObjectURL(url);
             }}
             </script>
-            <button onclick="downloadPdf()" style="display:block;width:100%;text-align:center;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;margin-top:8px;">
-            📥 Baixar PDF (celular)</button>''',
+            <button onclick="downloadPdf()" style="display:block;width:100%;text-align:center;padding:14px 28px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;font-size:1rem;border:none;cursor:pointer;">
+            📥 Baixar PDF ({qtd_saved} fotos)</button>''',
             height=60,
         )
 
