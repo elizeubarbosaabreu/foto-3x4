@@ -146,8 +146,8 @@ if uploaded:
             )
 
 st.divider()
-st.markdown("### 🌐 **elizeubarbosa.com.br**")
-st.link_button("Acesse meu site →", "https://elizeubarbosa.com.br/", use_container_width=True, type="primary")
+st.link_button("🌐 Visite meu site", "https://elizeubarbosa.com.br/", use_container_width=True)
+st.caption("© 2026 Prof. Elizeu Barbosa — Todos os direitos reservados.")
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.image("https://ebook-ste-com-python-e-streamlit.vercel.app/images/capa.jpg", width=200)
