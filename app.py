@@ -94,56 +94,59 @@ if uploaded:
     )
 
     if st.button("📄 Gerar PDF", use_container_width=True):
-        with st.spinner("Gerando PDF..."):
-            pw, ph = 30, 40
-            margin_y = 15
-            page_w, page_h = 210, 297
+        pw, ph = 30, 40
+        margin_y = 15
+        page_w, page_h = 210, 297
 
-            cols_pdf = int((page_w - 20) // pw)
-            rows_pdf = int((page_h - 2 * margin_y) // ph)
-            per_page = cols_pdf * rows_pdf
+        cols_pdf = int((page_w - 20) // pw)
+        rows_pdf = int((page_h - 2 * margin_y) // ph)
+        per_page = cols_pdf * rows_pdf
 
-            grid_w = cols_pdf * pw
-            margin_x = (page_w - grid_w) / 2
+        grid_w = cols_pdf * pw
+        margin_x = (page_w - grid_w) / 2
 
-            img_buf = io.BytesIO()
-            final.save(img_buf, format="PNG")
-            img_buf.seek(0)
+        img_buf = io.BytesIO()
+        final.save(img_buf, format="PNG")
+        img_buf.seek(0)
 
-            pdf = FPDF(orientation="P", unit="mm", format="A4")
-            pdf.set_auto_page_break(False)
+        pdf = FPDF(orientation="P", unit="mm", format="A4")
+        pdf.set_auto_page_break(False)
 
-            remaining = qtd
-            while remaining > 0:
-                pdf.add_page()
-                pdf.set_draw_color(180, 180, 180)
-                pdf.set_line_width(0.3)
+        remaining = qtd
+        while remaining > 0:
+            pdf.add_page()
+            pdf.set_draw_color(180, 180, 180)
+            pdf.set_line_width(0.3)
 
-                count = min(remaining, per_page)
-                for i in range(count):
-                    col = i % cols_pdf
-                    row = i // cols_pdf
-                    px = margin_x + col * pw
-                    py = margin_y + row * ph
+            count = min(remaining, per_page)
+            for i in range(count):
+                col = i % cols_pdf
+                row = i // cols_pdf
+                px = margin_x + col * pw
+                py = margin_y + row * ph
 
-                    pdf.rect(px, py, pw, ph)
+                pdf.rect(px, py, pw, ph)
 
-                    img_buf.seek(0)
-                    pdf.image(img_buf, x=px + 0.5, y=py + 0.5, w=pw - 1, h=ph - 1)
+                img_buf.seek(0)
+                pdf.image(img_buf, x=px + 0.5, y=py + 0.5, w=pw - 1, h=ph - 1)
 
-                remaining -= count
+            remaining -= count
 
-            pdf_buf = io.BytesIO()
-            pdf.output(pdf_buf)
-            pdf_buf.seek(0)
+        pdf_buf = io.BytesIO()
+        pdf.output(pdf_buf)
+        pdf_buf.seek(0)
 
-            st.download_button(
-                f"📥 Baixar PDF ({qtd} fotos)",
-                pdf_buf.getvalue(),
-                f"foto_3x4_{qtd}fotos.pdf",
-                "application/pdf",
-                use_container_width=True,
-            )
+        st.session_state["pdf_data"] = pdf_buf.getvalue()
+        st.session_state["pdf_qtd"] = qtd
+
+    if "pdf_data" in st.session_state:
+        st.download_button(
+            f"📥 Baixar PDF ({st.session_state['pdf_qtd']} fotos)",
+            st.session_state["pdf_data"],
+            f"foto_3x4_{st.session_state['pdf_qtd']}fotos.pdf",
+            "application/pdf",
+            use_container_width=True,
+        )
 
 st.divider()
 st.link_button("🌐 Visite meu site", "https://elizeubarbosa.com.br/", use_container_width=True)
