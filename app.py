@@ -140,12 +140,16 @@ if uploaded:
         st.session_state["pdf_qtd"] = qtd
 
     if "pdf_data" in st.session_state:
-        st.download_button(
-            f"📥 Baixar PDF ({st.session_state['pdf_qtd']} fotos)",
-            st.session_state["pdf_data"],
-            f"foto_3x4_{st.session_state['pdf_qtd']}fotos.pdf",
-            "application/pdf",
-            use_container_width=True,
+        import base64
+        b64 = base64.b64encode(st.session_state["pdf_data"]).decode()
+        filename = f"foto_3x4_{st.session_state['pdf_qtd']}fotos.pdf"
+        st.markdown(
+            f'<a href="data:application/pdf;base64,{b64}" download="{filename}" '
+            f'style="display:block;text-align:center;padding:14px 28px;border-radius:12px;'
+            f'background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;'
+            f'font-size:1rem;text-decoration:none;margin-top:8px;">'
+            f'📥 Baixar PDF ({st.session_state["pdf_qtd"]} fotos)</a>',
+            unsafe_allow_html=True,
         )
 
 st.divider()
