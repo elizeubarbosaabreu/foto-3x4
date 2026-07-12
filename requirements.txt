@@ -1,3 +1,5 @@
 streamlit
 rembg[cpu]
 Pillow
+numpy
+fpdf2
