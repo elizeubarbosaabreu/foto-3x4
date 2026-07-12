@@ -4,6 +4,7 @@ from PIL import Image
 from fpdf import FPDF
 import numpy as np
 import io
+import base64
 
 st.set_page_config(page_title="Foto 3x4", page_icon="📷")
 
@@ -105,9 +106,9 @@ if uploaded:
         grid_w = cols_pdf * pw
         margin_x = (page_w - grid_w) / 2
 
-        img_buf = io.BytesIO()
-        final.save(img_buf, format="PNG")
-        img_buf.seek(0)
+        photo_tmp = io.BytesIO()
+        final.save(photo_tmp, format="JPEG", quality=75)
+        photo_tmp.seek(0)
 
         pdf = FPDF(orientation="P", unit="mm", format="A4")
         pdf.set_auto_page_break(False)
@@ -127,8 +128,8 @@ if uploaded:
 
                 pdf.rect(px, py, pw, ph)
 
-                img_buf.seek(0)
-                pdf.image(img_buf, x=px + 0.5, y=py + 0.5, w=pw - 1, h=ph - 1)
+                photo_tmp.seek(0)
+                pdf.image(photo_tmp, x=px + 0.5, y=py + 0.5, w=pw - 1, h=ph - 1)
 
             remaining -= count
 
@@ -136,21 +137,33 @@ if uploaded:
         pdf.output(pdf_buf)
         pdf_buf.seek(0)
 
-        st.session_state["pdf_data"] = pdf_buf.getvalue()
+        pdf_bytes = pdf_buf.getvalue()
+        st.session_state["pdf_data"] = pdf_bytes
         st.session_state["pdf_qtd"] = qtd
 
     if "pdf_data" in st.session_state:
-        import base64
-        b64 = base64.b64encode(st.session_state["pdf_data"]).decode()
-        filename = f"foto_3x4_{st.session_state['pdf_qtd']}fotos.pdf"
-        st.markdown(
-            f'<a href="data:application/pdf;base64,{b64}" download="{filename}" '
-            f'style="display:block;text-align:center;padding:14px 28px;border-radius:12px;'
-            f'background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;'
-            f'font-size:1rem;text-decoration:none;margin-top:8px;">'
-            f'📥 Baixar PDF ({st.session_state["pdf_qtd"]} fotos)</a>',
-            unsafe_allow_html=True,
+        pdf_bytes = st.session_state["pdf_data"]
+        qtd_saved = st.session_state["pdf_qtd"]
+        filename = f"foto_3x4_{qtd_saved}fotos.pdf"
+
+        st.download_button(
+            f"📥 Baixar PDF ({qtd_saved} fotos)",
+            pdf_bytes,
+            filename,
+            "application/pdf",
+            use_container_width=True,
         )
+
+        if len(pdf_bytes) < 500000:
+            b64 = base64.b64encode(pdf_bytes).decode()
+            st.markdown(
+                f'<a href="data:application/pdf;base64,{b64}" download="{filename}" '
+                f'style="display:block;text-align:center;padding:14px 28px;border-radius:12px;'
+                f'background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;'
+                f'font-size:1rem;text-decoration:none;margin-top:8px;">'
+                f'📥 Baixar PDF (celular)</a>',
+                unsafe_allow_html=True,
+            )
 
 st.divider()
 st.link_button("🌐 Visite meu site", "https://elizeubarbosa.com.br/", use_container_width=True)
