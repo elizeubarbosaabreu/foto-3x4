@@ -1,6 +1,6 @@
 import streamlit as st
 from rembg import remove
-from PIL import Image, ImageDraw
+from PIL import Image
 from fpdf import FPDF
 import numpy as np
 import io
@@ -95,43 +95,19 @@ if uploaded:
 
     if st.button("📄 Gerar PDF", use_container_width=True):
         with st.spinner("Gerando PDF..."):
-            photo_mm = (30, 40)
-            margin_x, margin_y = 10, 15
+            pw, ph = 30, 40
+            margin_y = 15
             page_w, page_h = 210, 297
 
-            cols_pdf = (page_w - 2 * margin_x) // photo_mm[0]
-            rows_pdf = (page_h - 2 * margin_y) // photo_mm[1]
-            per_page = int(cols_pdf * rows_pdf)
+            cols_pdf = int((page_w - 20) // pw)
+            rows_pdf = int((page_h - 2 * margin_y) // ph)
+            per_page = cols_pdf * rows_pdf
 
-            radius = 2.0
-            pw, ph = photo_mm
-
-            def draw_rounded_rect(pdf, x, y, w, h, r):
-                pdf.rect(x + r, y, w - 2 * r, h)
-                pdf.rect(x, y + r, w, h - 2 * r)
-                pdf.ellipse(x, y, 2 * r, 2 * r)
-                pdf.ellipse(x + w - 2 * r, y, 2 * r, 2 * r)
-                pdf.ellipse(x, y + h - 2 * r, 2 * r, 2 * r)
-                pdf.ellipse(x + w - 2 * r, y + h - 2 * r, 2 * r, 2 * r)
-
-            def add_corners(img, radius):
-                mask = Image.new("L", img.size, 0)
-                ImageDraw.Draw(mask).rounded_rectangle(
-                    [(0, 0), img.size], radius=radius, fill=255
-                )
-                result = img.copy()
-                result.putalpha(mask)
-                return result
-
-            photo_buf = io.BytesIO()
-            final.save(photo_buf, format="PNG")
-            photo_buf.seek(0)
-            cornered = add_corners(Image.open(photo_buf), radius=18)
-            cornered_rgb = Image.new("RGB", cornered.size, (255, 255, 255))
-            cornered_rgb.paste(cornered, mask=cornered.split()[3])
+            grid_w = cols_pdf * pw
+            margin_x = (page_w - grid_w) / 2
 
             img_buf = io.BytesIO()
-            cornered_rgb.save(img_buf, format="PNG")
+            final.save(img_buf, format="PNG")
             img_buf.seek(0)
 
             pdf = FPDF(orientation="P", unit="mm", format="A4")
@@ -145,12 +121,12 @@ if uploaded:
 
                 count = min(remaining, per_page)
                 for i in range(count):
-                    col = i % int(cols_pdf)
-                    row = i // int(cols_pdf)
+                    col = i % cols_pdf
+                    row = i // cols_pdf
                     px = margin_x + col * pw
                     py = margin_y + row * ph
 
-                    draw_rounded_rect(pdf, px, py, pw, ph, radius)
+                    pdf.rect(px, py, pw, ph)
 
                     img_buf.seek(0)
                     pdf.image(img_buf, x=px + 0.5, y=py + 0.5, w=pw - 1, h=ph - 1)
